@@ -1,7 +1,50 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import OccasionFilter from '@/components/OccasionFilter';
+import TemplateCard from '@/components/TemplateCard';
+import { Template } from '@/types/template';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function Home() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedOccasion, setSelectedOccasion] = useState<string>('ALL');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch templates from Backend API
+  const fetchTemplates = async (occasion: string = 'ALL') => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const url =
+        occasion === 'ALL'
+          ? `${API_BASE_URL}/api/v1/templates`
+          : `${API_BASE_URL}/api/v1/templates?occasion=${occasion}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setTemplates(data.data || []);
+      } else {
+        setError(data.message || 'Failed to load templates.');
+      }
+    } catch (err) {
+      console.error('Error fetching templates:', err);
+      setError('Could not connect to the backend server to load templates.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates(selectedOccasion);
+  }, [selectedOccasion]);
+
   return (
     <div className="flex flex-col min-h-full">
       {/* Hero Section */}
@@ -23,18 +66,18 @@ export default function Home() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/register"
+            <a
+              href="#templates-section"
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#F42A41] hover:bg-red-700 text-white font-bold text-base shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2"
             >
-              <span>Get Started Free</span>
-              <span>→</span>
-            </Link>
+              <span>Explore Templates</span>
+              <span>↓</span>
+            </a>
             <Link
-              href="/login"
+              href="/register"
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-base border border-white/20 transition-colors flex items-center justify-center"
             >
-              <span>Sign In to Dashboard</span>
+              <span>Create Account</span>
             </Link>
           </div>
         </div>
@@ -44,9 +87,9 @@ export default function Home() {
       </section>
 
       {/* Feature Value Props */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl bg-emerald-100 text-[#006A4E] flex items-center justify-center font-bold text-xl mb-4">
               🇧🇩
             </div>
@@ -56,7 +99,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xl mb-4">
               ✍️
             </div>
@@ -66,7 +109,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 rounded-xl bg-red-100 text-[#F42A41] flex items-center justify-center font-bold text-xl mb-4">
               🖨️
             </div>
@@ -76,6 +119,79 @@ export default function Home() {
             </p>
           </div>
         </div>
+      </section>
+
+      {/* Template Selection Gallery Section */}
+      <section id="templates-section" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full scroll-mt-20">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <span className="text-xs uppercase tracking-widest font-bold text-[#006A4E] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            Template Catalog
+          </span>
+          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight mt-3">
+            Choose a Political Poster Theme
+          </h2>
+          <p className="text-sm text-gray-600 mt-2">
+            Select a curated occasion template to start composing your customized print banner.
+          </p>
+        </div>
+
+        {/* Occasion Filter Buttons */}
+        <OccasionFilter
+          selectedOccasion={selectedOccasion}
+          onSelectOccasion={(occ) => setSelectedOccasion(occ)}
+        />
+
+        {/* Error State */}
+        {error && (
+          <div className="max-w-md mx-auto my-8 p-4 bg-red-50 border border-red-200 rounded-xl text-center">
+            <p className="text-sm text-red-700 font-medium mb-3">{error}</p>
+            <button
+              onClick={() => fetchTemplates(selectedOccasion)}
+              className="px-4 py-2 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700 transition"
+            >
+              Retry Loading
+            </button>
+          </div>
+        )}
+
+        {/* Loading Skeleton Grid */}
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm animate-pulse">
+                <div className="aspect-[3/4] bg-gray-200" />
+                <div className="p-5 space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-1/3" />
+                  <div className="h-6 bg-gray-200 rounded w-3/4" />
+                  <div className="h-10 bg-gray-200 rounded-xl mt-4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Template Cards Grid */}
+        {!isLoading && !error && (
+          <>
+            {templates.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 mt-8">
+                <p className="text-gray-500 text-sm">No templates found for this category.</p>
+                <button
+                  onClick={() => setSelectedOccasion('ALL')}
+                  className="mt-3 text-xs font-semibold text-[#006A4E] hover:underline"
+                >
+                  View all templates
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                {templates.map((template) => (
+                  <TemplateCard key={template._id} template={template} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </section>
     </div>
   );
