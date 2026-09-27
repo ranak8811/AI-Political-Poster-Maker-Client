@@ -90,11 +90,12 @@ export default function PosterForm({ template }: PosterFormProps) {
     };
 
     try {
-      const data = await apiClient.post('/api/v1/posters', payload);
+      const data = await apiClient.post<any>('/api/v1/posters', payload);
+      const posterId = data.posterId || data.poster?._id;
 
-      if (data.success && data.poster) {
+      if (data.success && posterId) {
         // Redirect to preview screen
-        router.push(`/preview/${data.poster._id}`);
+        router.push(`/preview/${posterId}`);
       } else {
         setFormError(data.message || 'Failed to submit poster creation request.');
       }
