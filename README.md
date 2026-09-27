@@ -16,7 +16,7 @@ A fullstack Next.js web application designed to generate authentic, print-ready 
 Below is an authentic 1200×1600px political poster generated through the platform:
 
 <div align="center">
-  <img src="public/political-poster-মোঃ তরিকুল ইসলাম.png" alt="Sample Generated Political Poster" width="400" style="border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" />
+  <img src="public/sample-poster.png" alt="Sample Generated Political Poster" width="400" style="border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" />
   <p><em>Generated with 100% correct Bengali TrueType font (Kalpurush), top leader circular vignettes, and gold borders.</em></p>
 </div>
 
@@ -60,7 +60,7 @@ Below is an authentic 1200×1600px political poster generated through the platfo
 ```
 client/
 ├── public/                     # Static assets and sample generated posters
-│   └── political-poster-মোঃ তরিকুল ইসলাম.png
+│   └── sample-poster.png
 ├── src/
 │   ├── app/                    # Next.js App Router pages
 │   │   ├── create/page.tsx     # Candidate form & template switcher
