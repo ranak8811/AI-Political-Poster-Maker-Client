@@ -65,7 +65,7 @@ function CreatePosterContent() {
             <span>/</span>
             <span className="text-gray-800 font-semibold">Create Poster</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#006A4E] tracking-tight">
             Design Political Banner
           </h1>
           <p className="text-sm text-gray-600 mt-1">

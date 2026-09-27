@@ -139,7 +139,7 @@ export default function RegenerateModal({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label className="block text-sm font-bold text-gray-900 mb-1.5">
                 Headline / Slogan (বাংলায়)
               </label>
               <textarea
@@ -148,9 +148,9 @@ export default function RegenerateModal({
                 required
                 rows={3}
                 placeholder="যেমন: আসন্ন নির্বাচনে আমাকে জয়যুক্ত করে জনসেবার সুযোগ দিন"
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent text-sm resize-none"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent text-sm font-medium resize-none shadow-sm"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 You can edit or adjust the Bengali headline to explore different design nuances.
               </p>
             </div>
