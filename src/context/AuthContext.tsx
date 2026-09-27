@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import apiClient from '@/lib/api-client';
 
 export interface User {
   id: string;
@@ -21,8 +22,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -40,16 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         setToken(storedToken);
 
-        // Verify token with backend /me endpoint
-        const res = await fetch(`${API_BASE_URL}/api/v1/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        });
+        // Verify token with backend /me endpoint using apiClient
+        const data = await apiClient.get('/api/v1/auth/me', { token: storedToken });
 
-        const data = await res.json();
-
-        if (res.ok && data.success && data.user) {
+        if (data.success && data.user) {
           setUser(data.user);
         } else {
           // Token is invalid or expired
@@ -73,31 +66,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // User Login
   const login = async (email: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const data = await apiClient.post('/api/v1/auth/login', { email, password });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        return {
-          success: false,
-          message: data.message || 'Login failed. Please check your credentials.',
-        };
+      if (data.success && data.token) {
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
+        setUser(data.user);
+        return { success: true, message: data.message };
       }
 
-      localStorage.setItem('token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-
-      return { success: true, message: data.message };
-    } catch (error) {
+      return {
+        success: false,
+        message: data.message || 'Login failed. Please check your credentials.',
+      };
+    } catch (error: any) {
       console.error('Login request error:', error);
       return {
         success: false,
-        message: 'Could not connect to the authentication server.',
+        message: error.message || 'Could not connect to the authentication server.',
       };
     }
   };
@@ -105,31 +91,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // User Registration
   const register = async (name: string, email: string, password: string): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const data = await apiClient.post('/api/v1/auth/register', { name, email, password });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        return {
-          success: false,
-          message: data.message || 'Registration failed.',
-        };
+      if (data.success && data.token) {
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
+        setUser(data.user);
+        return { success: true, message: data.message };
       }
 
-      localStorage.setItem('token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-
-      return { success: true, message: data.message };
-    } catch (error) {
+      return {
+        success: false,
+        message: data.message || 'Registration failed.',
+      };
+    } catch (error: any) {
       console.error('Registration request error:', error);
       return {
         success: false,
-        message: 'Could not connect to the registration server.',
+        message: error.message || 'Could not connect to the registration server.',
       };
     }
   };

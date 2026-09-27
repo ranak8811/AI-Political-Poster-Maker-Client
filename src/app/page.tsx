@@ -5,8 +5,7 @@ import Link from 'next/link';
 import OccasionFilter from '@/components/OccasionFilter';
 import TemplateCard from '@/components/TemplateCard';
 import { Template } from '@/types/template';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+import apiClient from '@/lib/api-client';
 
 export default function Home() {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -14,28 +13,27 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch templates from Backend API
+  // Fetch templates from Backend API using apiClient
   const fetchTemplates = async (occasion: string = 'ALL') => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const url =
+      const endpoint =
         occasion === 'ALL'
-          ? `${API_BASE_URL}/api/v1/templates`
-          : `${API_BASE_URL}/api/v1/templates?occasion=${occasion}`;
+          ? '/api/v1/templates'
+          : `/api/v1/templates?occasion=${occasion}`;
 
-      const res = await fetch(url);
-      const data = await res.json();
+      const data = await apiClient.get(endpoint);
 
-      if (res.ok && data.success) {
-        setTemplates(data.data || []);
+      if (data.success && data.data) {
+        setTemplates(data.data);
       } else {
         setError(data.message || 'Failed to load templates.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching templates:', err);
-      setError('Could not connect to the backend server to load templates.');
+      setError(err.message || 'Could not connect to the backend server to load templates.');
     } finally {
       setIsLoading(false);
     }
